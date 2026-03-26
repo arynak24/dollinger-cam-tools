@@ -1,23 +1,86 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Dollinger CAM Tools</title>
+<div id="camWorkspace">
 
-    <!-- Load Office.js (required for Excel add-ins) -->
-    <script src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
+  <!-- CLAUSE VERBIAGE -->
+  <section class="panel">
+    <h2>Clause Verbiage</h2>
+    <textarea id="clauseText" placeholder="Paste clause text here..." class="big-text"></textarea>
+  </section>
 
-    <!-- Load your stylesheet -->
-    <link rel="stylesheet" href="taskpane.css" />
-  </head>
+  <!-- ABSTRACTION NOTES -->
+  <section class="panel">
+    <h2>Abstraction Notes</h2>
+    <textarea id="abstractionNotes" placeholder="Write your interpretation, key points, exceptions..." class="medium-text"></textarea>
+  </section>
 
-  <body>
-    <h2>Dollinger CAM Tools</h2>
-    <p>The add‑in is working!</p>
+  <!-- VALUES SECTION -->
+  <section class="panel">
+    <h2>Extracted Values</h2>
 
-    <button id="testBtn">Click me</button>
+    <div class="field">
+      <label>Dollar Amount(s)</label>
+      <input type="text" id="valueDollars" placeholder="$, $$, ranges, etc."/>
+    </div>
 
-    <!-- Load your custom JS last so the DOM exists -->
-    <script src="taskpane.js"></script>
-  </body>
-</html>
+    <div class="field">
+      <label>Percent / Fee</label>
+      <input type="text" id="valuePercent" placeholder="% of rent, % escalation, etc."/>
+    </div>
+
+    <div class="field">
+      <label>Base Year</label>
+      <input type="text" id="valueBaseYear" placeholder="e.g., 2025"/>
+    </div>
+
+    <div class="field">
+      <label>Start / End Dates</label>
+      <input type="text" id="valueDates" placeholder="Date ranges or key timelines"/>
+    </div>
+
+    <div class="field">
+      <label>Other Key Values</label>
+      <input type="text" id="valueOther" placeholder="Thresholds, caps, special conditions"/>
+    </div>
+
+  </section>
+
+  <!-- CATEGORY + TAGS -->
+  <section class="panel">
+    <h2>Category & Tags</h2>
+
+    <div class="field">
+      <label>CAM Category</label>
+      <select id="camCategory">
+        <option value="">Select Category</option>
+        <option>Operating Expenses</option>
+        <option>Taxes</option>
+        <option>Insurance</option>
+        <option>Utilities</option>
+        <option>Capital Expenditures</option>
+        <option>Admin/Management Fees</option>
+        <option>Exclusions</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Tags (multi-select)</label>
+      <input type="text" id="camTags" placeholder="e.g., reimbursable, gross-up, pass-through"/>
+    </div>
+  </section>
+
+  <!-- ACTION BUTTONS -->
+  <section class="panel actions">
+    <button id="btnSaveClause" class="primary">Save Clause to Repository</button>
+    <button id="btnMatchClause">Check for Existing Clause</button>
+    <button id="btnInsertID">Insert ClauseID into TenantForm</button>
+  </section>
+
+  <!-- HISTORY PANEL -->
+  <section class="panel">
+    <h2>Clause History / Review</h2>
+    <div id="historyContent" class="history-box">
+      <!-- Populated dynamically -->
+      <p>No history loaded.</p>
+    </div>
+  </section>
+
+</div>
