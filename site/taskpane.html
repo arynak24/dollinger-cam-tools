@@ -3,44 +3,43 @@
   <!-- CLAUSE VERBIAGE -->
   <section class="panel">
     <h2>Clause Verbiage</h2>
-    <textarea id="clauseText" placeholder="Paste clause text here..." class="big-text"></textarea>
+    <textarea id="clauseText" placeholder="Paste clause text here…" class="big-text"></textarea>
   </section>
 
   <!-- ABSTRACTION NOTES -->
   <section class="panel">
     <h2>Abstraction Notes</h2>
-    <textarea id="abstractionNotes" placeholder="Write your interpretation, key points, exceptions..." class="medium-text"></textarea>
+    <textarea id="abstractionNotes" placeholder="Interpretation, key points, exceptions…" class="medium-text"></textarea>
   </section>
 
-  <!-- VALUES SECTION -->
+  <!-- EXTRACTED VALUES -->
   <section class="panel">
     <h2>Extracted Values</h2>
 
     <div class="field">
       <label>Dollar Amount(s)</label>
-      <input type="text" id="valueDollars" placeholder="$, $$, ranges, etc."/>
+      <input type="text" id="valueDollars" placeholder="e.g., $2.50, $0.25/sf, etc." />
     </div>
 
     <div class="field">
       <label>Percent / Fee</label>
-      <input type="text" id="valuePercent" placeholder="% of rent, % escalation, etc."/>
+      <input type="text" id="valuePercent" placeholder="e.g., 5% admin fee" />
     </div>
 
     <div class="field">
       <label>Base Year</label>
-      <input type="text" id="valueBaseYear" placeholder="e.g., 2025"/>
+      <input type="text" id="valueBaseYear" placeholder="e.g., 2025" />
     </div>
 
     <div class="field">
-      <label>Start / End Dates</label>
-      <input type="text" id="valueDates" placeholder="Date ranges or key timelines"/>
+      <label>Date Range / Time Period</label>
+      <input type="text" id="valueDates" placeholder="e.g., 1/1/2025 - 12/31/2025" />
     </div>
 
     <div class="field">
       <label>Other Key Values</label>
-      <input type="text" id="valueOther" placeholder="Thresholds, caps, special conditions"/>
+      <input type="text" id="valueOther" placeholder="thresholds, caps, special conditions" />
     </div>
-
   </section>
 
   <!-- CATEGORY + TAGS -->
@@ -62,15 +61,21 @@
     </div>
 
     <div class="field">
-      <label>Tags (multi-select)</label>
-      <input type="text" id="camTags" placeholder="e.g., reimbursable, gross-up, pass-through"/>
+      <label>Tags</label>
+      <input type="text" id="camTags" placeholder="comma-separated tags" />
     </div>
+
+    <div class="field">
+      <label>PDF Page Reference</label>
+      <input type="text" id="pdfPage" placeholder="Where is this clause in the lease PDF?" />
+    </div>
+
   </section>
 
   <!-- ACTION BUTTONS -->
   <section class="panel actions">
     <button id="btnSaveClause" class="primary">Save Clause to Repository</button>
-    <button id="btnMatchClause">Check for Existing Clause</button>
+    <button id="btnMatchClause">Match Existing Clause</button>
     <button id="btnInsertID">Insert ClauseID into TenantForm</button>
   </section>
 
@@ -78,8 +83,7 @@
   <section class="panel">
     <h2>Clause History / Review</h2>
     <div id="historyContent" class="history-box">
-      <!-- Populated dynamically -->
-      <p>No history loaded.</p>
+      <p>No clause loaded.</p>
     </div>
   </section>
 
