@@ -5,9 +5,37 @@
 
 /**
  * GET items from a SharePoint list with optional OData query.
+ * 
+ * Example:
+ *   spGet(site, "ClauseRepository", "?$select=ID,ClauseText")
  */
 export async function spGet(siteUrl, listName, filter = "") {
     const url = `${siteUrl}/_api/web/lists/getByTitle('${listName}')/items${filter}`;
+
+    const response = await fetch(url, {
+        method: "GET",
+        headers: {
+            "Accept": "application/json;odata=nometadata"
+        },
+        credentials: "include"   // Required for Office add-ins
+    });
+
+    if (!response.ok) {
+        throw new Error(`SharePoint GET failed: ${response.status}`);
+    }
+
+    return await response.json();
+}
+
+
+/**
+ * GET a single item by numeric ID.
+ *
+ * Example:
+ *   spGetByID(site, "ClauseRepository", 42)
+ */
+export async function spGetByID(siteUrl, listName, id) {
+    const url = `${siteUrl}/_api/web/lists/getByTitle('${listName}')/items(${id})`;
 
     const response = await fetch(url, {
         method: "GET",
@@ -18,14 +46,24 @@ export async function spGet(siteUrl, listName, filter = "") {
     });
 
     if (!response.ok) {
-        throw new Error(`SharePoint GET failed: ${response.status}`);
+        throw new Error(`SharePoint GET by ID failed: ${response.status}`);
     }
 
     return await response.json();
 }
 
+
 /**
- * POST a new item into a SharePoint list.
+ * CREATE a new item in a SharePoint list.
+ *
+ * Body object must use EXACT internal column names.
+ *
+ * Example:
+ *   spCreate(site, "ClauseRepository", {
+ *      ClauseText: "Text...",
+ *      Notes: "Notes...",
+ *      PageNumber: 12
+ *   });
  */
 export async function spCreate(siteUrl, listName, bodyObj) {
     const url = `${siteUrl}/_api/web/lists/getByTitle('${listName}')/items`;
@@ -42,27 +80,6 @@ export async function spCreate(siteUrl, listName, bodyObj) {
 
     if (!response.ok) {
         throw new Error(`SharePoint POST failed: ${response.status}`);
-    }
-
-    return await response.json();
-}
-
-/**
- * GET a single item by ID.
- */
-export async function spGetByID(siteUrl, listName, id) {
-    const url = `${siteUrl}/_api/web/lists/getByTitle('${listName}')/items(${id})`;
-
-    const response = await fetch(url, {
-        method: "GET",
-        headers: {
-            "Accept": "application/json;odata=nometadata"
-        },
-        credentials: "include"
-    });
-
-    if (!response.ok) {
-        throw new Error(`SharePoint GET by ID failed: ${response.status}`);
     }
 
     return await response.json();
