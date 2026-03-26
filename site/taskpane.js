@@ -1,7 +1,6 @@
 /* -----------------------------------------------------------
    CAM Add-In: Taskpane Controller
-   Works with /cam/* modules & /lib/* helpers.
-   This file wires your UI → pipeline → repository → Excel.
+   Wires UI → CAM modules → Flow/PowerApps → Excel.
 ------------------------------------------------------------*/
 
 import { buildClauseObject } from "./cam/pipeline.js";
@@ -9,21 +8,24 @@ import { findMatchingClauses } from "./cam/match.js";
 import { insertClauseIDIntoForm, openLeaseLibraryLink } from "./cam/link.js";
 import { postJSON } from "./lib/api.js";
 
-/* PowerApps / Flow endpoints (replace when ready) */
-const SAVE_CLAUSE_URL = "YOUR_FLOW_URL/saveClause";
+/* -----------------------------------------------------------
+   ✅ FLOW / POWERAPPS ENDPOINTS  
+   (Replace these when Flow URLs are ready)
+------------------------------------------------------------*/
+const SAVE_CLAUSE_URL  = "YOUR_FLOW_URL/saveClause";
 const MATCH_CLAUSE_URL = "YOUR_FLOW_URL/matchClause";
-const HISTORY_URL     = "YOUR_FLOW_URL/getClauseHistory";
+const HISTORY_URL      = "YOUR_FLOW_URL/getClauseHistory";
 
 /* -----------------------------------------------------------
-   Initialize Add-In
+   ✅ Initialize Add-In
 ------------------------------------------------------------*/
 Office.onReady(() => {
-    console.log("CAM Add-In Ready.");
+    console.log("✅ CAM Add-In Ready.");
     wireButtons();
 });
 
 /* -----------------------------------------------------------
-   Button Event Wiring
+   ✅ Attach UI button handlers
 ------------------------------------------------------------*/
 function wireButtons() {
     document.getElementById("btnSaveClause").onclick = saveClause;
@@ -32,90 +34,84 @@ function wireButtons() {
 }
 
 /* -----------------------------------------------------------
-   BUILD & SAVE CLAUSE
-   - Collect all UI fields
-   - Build ClauseObject
-   - POST to Flow / PowerApps
-   - Update UI history panel
+   ✅ SAVE CLAUSE → FLOW / CLAUSEREPOSITORY
 ------------------------------------------------------------*/
 async function saveClause() {
     try {
         const clauseObj = await buildClauseObject();
-        console.log("Saving clause →", clauseObj);
+        console.log("Saving Clause:", clauseObj);
 
-        // Send to Flow / ClauseRepository
+        // POST to Flow
         const response = await postJSON(SAVE_CLAUSE_URL, clauseObj);
-        console.log("Save response:", response);
+        console.log("Flow Save Response:", response);
 
-        // Display confirmation
-        alert("Clause saved successfully!");
+        clauseObj.ClauseID = response.ClauseID || null;
+        clauseObj.LeaseID  = response.LeaseID  || null;
 
-        // Insert returned ClauseID into hidden memory for next steps
-        clauseObj.ClauseID = response.ClauseID;
-        clauseObj.LeaseID  = response.LeaseID;
+        // Store for linking
+        window.__lastClauseHistory = clauseObj;
 
-        // Render updated history
         renderHistory(clauseObj);
+        alert("✅ Clause saved to repository!");
 
     } catch (err) {
-        console.error("SaveClause Error:", err);
+        console.error("❌ Save Clause Error:", err);
         alert("Error saving clause. Check console.");
     }
 }
 
 /* -----------------------------------------------------------
-   MATCH EXISTING CLAUSES
-   - Uses text from Clause Verbiage box
-   - Shows result in history panel
+   ✅ MATCH EXISTING CLAUSES
 ------------------------------------------------------------*/
 async function matchClause() {
     try {
         const text = document.getElementById("clauseText").value.trim();
+
         if (!text) {
-            alert("Paste or select clause text first.");
+            alert("Paste or extract clause text first.");
             return;
         }
 
-        console.log("Matching clause text:", text);
+        console.log("Searching for matches:", text);
 
         const matches = await findMatchingClauses(text);
 
-        // Update history panel with match results
         renderMatchResults(matches);
 
     } catch (err) {
-        console.error("MatchClause Error:", err);
-        alert("Error matching clause. Check console.");
+        console.error("❌ Match Error:", err);
+        alert("Error searching for matches.");
     }
 }
 
 /* -----------------------------------------------------------
-   INSERT CLAUSE ID INTO SELECTED TENANT FORM CELL
+   ✅ INSERT CLAUSEID INTO TENANTFORM (selected cell)
 ------------------------------------------------------------*/
 async function insertClauseID() {
-    const lastHistory = window.__lastClauseHistory;
+    const last = window.__lastClauseHistory;
 
-    if (!lastHistory || !lastHistory.ClauseID) {
-        alert("No ClauseID available. Save or match a clause first.");
+    if (!last || !last.ClauseID) {
+        alert("No ClauseID found. Save or match a clause first.");
         return;
     }
 
-    await insertClauseIDIntoForm(lastHistory.ClauseID);
-    alert("ClauseID inserted into TenantForm.");
+    await insertClauseIDIntoForm(last.ClauseID);
+    alert("✅ ClauseID inserted into tenant form.");
 }
 
 /* -----------------------------------------------------------
-   HISTORY PANEL RENDERING
+   ✅ HISTORY PANEL — Show current clause object
 ------------------------------------------------------------*/
 function renderHistory(clauseObj) {
-    window.__lastClauseHistory = clauseObj;  // Store for linking
+    window.__lastClauseHistory = clauseObj;
 
     const div = document.getElementById("historyContent");
-    div.innerHTML = `
-        <strong>ClauseID:</strong> ${clauseObj.ClauseID ?? "(not assigned)"}<br>
-        <strong>LeaseID:</strong> ${clauseObj.LeaseID ?? "(not assigned)"}<br><br>
 
-        <strong>Text:</strong><br>
+    div.innerHTML = `
+        <strong>ClauseID:</strong> ${clauseObj.ClauseID ?? "(pending)"}<br>
+        <strong>LeaseID:</strong> ${clauseObj.LeaseID ?? "(none yet)"}<br><br>
+
+        <strong>Clause Text:</strong><br>
         <pre>${clauseObj.Text}</pre><br>
 
         <strong>Notes:</strong><br>
@@ -133,20 +129,21 @@ function renderHistory(clauseObj) {
 
         <strong>PDF Page:</strong> ${clauseObj.PageReference}<br>
         <strong>Timestamp:</strong> ${clauseObj.Timestamp}<br>
-        <strong>Abstracted By:</strong> ${clauseObj.AbstractedBy}<br><br>
 
-        ${clauseObj.LeaseID ? `<button id="openLease">Open LeaseLibrary Entry</button>` : ""}
+        ${clauseObj.LeaseID ? 
+            `<button id="openLease" class="primary">Open LeaseLibrary Entry</button>` 
+            : ""}
     `;
 
-    // Attach event listener if needed
-    const btnOpen = document.getElementById("openLease");
-    if (btnOpen) {
-        btnOpen.onclick = () => openLeaseLibraryLink(clauseObj.LeaseID);
+    // Add handler if button exists
+    const btn = document.getElementById("openLease");
+    if (btn) {
+        btn.onclick = () => openLeaseLibraryLink(clauseObj.LeaseID);
     }
 }
 
 /* -----------------------------------------------------------
-   SHOW MATCH RESULTS IN HISTORY PANEL
+   ✅ HISTORY PANEL — Show match results
 ------------------------------------------------------------*/
 function renderMatchResults(matches) {
     const div = document.getElementById("historyContent");
@@ -156,63 +153,10 @@ function renderMatchResults(matches) {
         return;
     }
 
-    let html = `<strong>Matches Found:</strong><br><br>`;
+    let html = `<strong>Matching Clauses:</strong><br><br>`;
 
     matches.forEach((m, i) => {
         html += `
             <div class="match-item">
                 <strong>Match #${i + 1}</strong><br>
                 ClauseID: ${m.ClauseID}<br>
-                Category: ${m.Category}<br>
-                <pre>${m.Text}</pre>
-                <button class="useClause" data-id="${m.ClauseID}">Use This Clause</button>
-                <br><br>
-            </div>
-        `;
-    });
-
-    div.innerHTML = html;
-
-    // Hook up all buttons
-    const buttons = document.querySelectorAll(".useClause");
-    buttons.forEach(btn => {
-        btn.onclick = () => {
-            const selectedID = btn.getAttribute("data-id");
-            applyMatchedClause(selectedID);
-        };
-    });
-}
-
-/* -----------------------------------------------------------
-   USE MATCHED CLAUSE
-   - Loads clause details into workspace
-   - Preps ClauseID for inserting into TenantForm
-------------------------------------------------------------*/
-async function applyMatchedClause(clauseID) {
-    try {
-        const data = await postJSON(HISTORY_URL, { id: clauseID });
-
-        // Update UI fields
-        document.getElementById("clauseText").value = data.Text;
-        document.getElementById("abstractionNotes").value = data.Notes;
-
-        document.getElementById("valueDollars").value = data.Values.Dollars;
-        document.getElementById("valuePercent").value = data.Values.Percent;
-        document.getElementById("valueBaseYear").value = data.Values.BaseYear;
-        document.getElementById("valueDates").value = data.Values.Dates;
-        document.getElementById("valueOther").value = data.Values.Other;
-
-        document.getElementById("camCategory").value = data.Category;
-        document.getElementById("camTags").value = data.Tags.join(", ");
-        document.getElementById("pdfPage").value = data.PageReference;
-
-        // Render to history panel
-        renderHistory(data);
-
-        alert("Clause loaded from repository.");
-
-    } catch (err) {
-        console.error("applyMatchedClause Error:", err);
-        alert("Error loading clause.");
-    }
-}
