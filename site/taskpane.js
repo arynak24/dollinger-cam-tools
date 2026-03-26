@@ -1,150 +1,201 @@
-/* -----------------------------------------------------------
-   CAM Add-In: Taskpane Controller
-   Wires UI → CAM modules → Flow/PowerApps → Excel.
-------------------------------------------------------------*/
+// ------------------------------------------------------------
+// CAM Add-In: Taskpane Controller (SharePoint REST Architecture)
+// ------------------------------------------------------------
 
+// Imports
 import { buildClauseObject } from "./cam/pipeline.js";
-import { findMatchingClauses } from "./cam/match.js";
-import { insertClauseIDIntoForm, openLeaseLibraryLink } from "./cam/link.js";
-import { postJSON } from "./lib/api.js";
+import { insertClauseIDIntoForm } from "./cam/link.js";
+import { spCreate, spGet, spGetByID } from "./lib/sharepoint.js";
 
-/* -----------------------------------------------------------
-   ✅ FLOW / POWERAPPS ENDPOINTS  
-   (Replace these when Flow URLs are ready)
-------------------------------------------------------------*/
-const SAVE_CLAUSE_URL  = "YOUR_FLOW_URL/saveClause";
-const MATCH_CLAUSE_URL = "YOUR_FLOW_URL/matchClause";
-const HISTORY_URL      = "YOUR_FLOW_URL/getClauseHistory";
+// -----------------------
+// SharePoint Settings
+// -----------------------
+const SP_SITE = "https://dpmproperties.sharepoint.com/sites/DollingerCAMProject";
+const SP_LIST = "ClauseRepository";
 
-/* -----------------------------------------------------------
-   ✅ Initialize Add-In
-------------------------------------------------------------*/
+// ------------------------------------------------------------
+// Initialize Add-In
+// ------------------------------------------------------------
 Office.onReady(() => {
-    console.log("✅ CAM Add-In Ready.");
+    console.log("✅ CAM Add-In Ready");
     wireButtons();
 });
 
-/* -----------------------------------------------------------
-   ✅ Attach UI button handlers
-------------------------------------------------------------*/
+// Wire UI buttons to functions
 function wireButtons() {
     document.getElementById("btnSaveClause").onclick = saveClause;
     document.getElementById("btnMatchClause").onclick = matchClause;
     document.getElementById("btnInsertID").onclick = insertClauseID;
 }
 
-/* -----------------------------------------------------------
-   ✅ SAVE CLAUSE → FLOW / CLAUSEREPOSITORY
-------------------------------------------------------------*/
+// ------------------------------------------------------------
+// SAVE CLAUSE (Create item in SharePoint)
+// ------------------------------------------------------------
 async function saveClause() {
     try {
-        const clauseObj = await buildClauseObject();
-        console.log("Saving Clause:", clauseObj);
+        // Build clause object from UI fields
+        const clause = await buildClauseObject();
 
-        // POST to Flow
-        const response = await postJSON(SAVE_CLAUSE_URL, clauseObj);
-        console.log("Flow Save Response:", response);
+        // Map to SharePoint column names
+        const body = {
+            ClauseText: clause.Text,
+            Notes: clause.Notes,
+            PageNumber: clause.PageReference,
+            DocType: clause.Category,
+            Tags: clause.Tags.join(", "),
+            Dollars: clause.Values.Dollars,
+            Percent: clause.Values.Percent,
+            BaseYear: clause.Values.BaseYear,
+            Dates: clause.Values.Dates,
+            OtherValues: clause.Values.Other
+        };
 
-        clauseObj.ClauseID = response.ClauseID || null;
-        clauseObj.LeaseID  = response.LeaseID  || null;
+        // Create item in SharePoint
+        const item = await spCreate(SP_SITE, SP_LIST, body);
 
-        // Store for linking
-        window.__lastClauseHistory = clauseObj;
+        // Store new ClauseID
+        clause.ClauseID = item.ID;
+        window.__lastClauseHistory = clause;
 
-        renderHistory(clauseObj);
-        alert("✅ Clause saved to repository!");
+        renderHistory(clause);
+
+        alert(`✅ Clause saved! New ClauseID = ${item.ID}`);
 
     } catch (err) {
-        console.error("❌ Save Clause Error:", err);
-        alert("Error saving clause. Check console.");
+        console.error("❌ SaveClause Error:", err);
+        alert("Error saving clause to SharePoint. See console.");
     }
 }
 
-/* -----------------------------------------------------------
-   ✅ MATCH EXISTING CLAUSES
-------------------------------------------------------------*/
+// ------------------------------------------------------------
+// MATCH EXISTING CLAUSES (SharePoint GET + client filter)
+// ------------------------------------------------------------
 async function matchClause() {
     try {
         const text = document.getElementById("clauseText").value.trim();
-
         if (!text) {
-            alert("Paste or extract clause text first.");
+            alert("Paste clause text to match.");
             return;
         }
 
-        console.log("Searching for matches:", text);
+        // Pull minimal fields for faster matching
+        const results = await spGet(SP_SITE, SP_LIST, "?$select=ID,ClauseText,DocType");
 
-        const matches = await findMatchingClauses(text);
+        // Client-side filtering because ClauseText is multiline
+        const matches = results.value
+            .filter(item =>
+                item.ClauseText?.toLowerCase().includes(text.toLowerCase())
+            )
+            .map(item => ({
+                ClauseID: item.ID,
+                Text: item.ClauseText,
+                Category: item.DocType
+            }));
 
         renderMatchResults(matches);
 
     } catch (err) {
-        console.error("❌ Match Error:", err);
-        alert("Error searching for matches.");
+        console.error("❌ MatchClause Error:", err);
+        alert("Could not query SharePoint. See console.");
     }
 }
 
-/* -----------------------------------------------------------
-   ✅ INSERT CLAUSEID INTO TENANTFORM (selected cell)
-------------------------------------------------------------*/
+// ------------------------------------------------------------
+// GET CLAUSE DETAILS (SharePoint GET by ID)
+// ------------------------------------------------------------
+async function applyMatchedClause(clauseID) {
+    try {
+        const item = await spGetByID(SP_SITE, SP_LIST, clauseID);
+
+        const clause = {
+            ClauseID: item.ID,
+            Text: item.ClauseText,
+            Notes: item.Notes,
+            Category: item.DocType,
+            Tags: item.Tags,
+            PageReference: item.PageNumber,
+            Values: {
+                Dollars: item.Dollars,
+                Percent: item.Percent,
+                BaseYear: item.BaseYear,
+                Dates: item.Dates,
+                Other: item.OtherValues
+            }
+        };
+
+        // Save for Excel insertion
+        window.__lastClauseHistory = clause;
+
+        // Populate UI fields
+        document.getElementById("clauseText").value = clause.Text;
+        document.getElementById("abstractionNotes").value = clause.Notes;
+
+        document.getElementById("valueDollars").value = clause.Values.Dollars;
+        document.getElementById("valuePercent").value = clause.Values.Percent;
+        document.getElementById("valueBaseYear").value = clause.Values.BaseYear;
+        document.getElementById("valueDates").value = clause.Values.Dates;
+        document.getElementById("valueOther").value = clause.Values.Other;
+
+        document.getElementById("camCategory").value = clause.Category;
+        document.getElementById("camTags").value = clause.Tags;
+        document.getElementById("pdfPage").value = clause.PageReference;
+
+        renderHistory(clause);
+
+        alert(`✅ Loaded ClauseID ${clauseID}`);
+
+    } catch (err) {
+        console.error("❌ GetClauseHistory Error:", err);
+        alert("Could not load clause details. See console.");
+    }
+}
+
+// ------------------------------------------------------------
+// INSERT CLAUSEID INTO EXCEL
+// ------------------------------------------------------------
 async function insertClauseID() {
     const last = window.__lastClauseHistory;
 
     if (!last || !last.ClauseID) {
-        alert("No ClauseID found. Save or match a clause first.");
+        alert("No ClauseID found. Save or load a clause first.");
         return;
     }
 
     await insertClauseIDIntoForm(last.ClauseID);
-    alert("✅ ClauseID inserted into tenant form.");
+    alert("✅ ClauseID written into the tenant form.");
 }
 
-/* -----------------------------------------------------------
-   ✅ HISTORY PANEL — Show current clause object
-------------------------------------------------------------*/
-function renderHistory(clauseObj) {
-    window.__lastClauseHistory = clauseObj;
-
+// ------------------------------------------------------------
+// HISTORY PANEL
+// ------------------------------------------------------------
+function renderHistory(clause) {
     const div = document.getElementById("historyContent");
 
     div.innerHTML = `
-        <strong>ClauseID:</strong> ${clauseObj.ClauseID ?? "(pending)"}<br>
-        <strong>LeaseID:</strong> ${clauseObj.LeaseID ?? "(none yet)"}<br><br>
+        <strong>ClauseID:</strong> ${clause.ClauseID ?? "(pending)"}<br><br>
 
         <strong>Clause Text:</strong><br>
-        <pre>${clauseObj.Text}</pre><br>
+        <pre>${clause.Text}</pre><br>
 
         <strong>Notes:</strong><br>
-        <pre>${clauseObj.Notes}</pre><br>
+        <pre>${clause.Notes}</pre><br>
 
         <strong>Values:</strong><br>
-        Dollars: ${clauseObj.Values.Dollars}<br>
-        Percent: ${clauseObj.Values.Percent}<br>
-        BaseYear: ${clauseObj.Values.BaseYear}<br>
-        Dates: ${clauseObj.Values.Dates}<br>
-        Other: ${clauseObj.Values.Other}<br><br>
+        Dollars: ${clause.Values.Dollars}<br>
+        Percent: ${clause.Values.Percent}<br>
+        Base Year: ${clause.Values.BaseYear}<br>
+        Dates: ${clause.Values.Dates}<br>
+        Other: ${clause.Values.Other}<br><br>
 
-        <strong>Category:</strong> ${clauseObj.Category}<br>
-        <strong>Tags:</strong> ${clauseObj.Tags.join(", ")}<br><br>
-
-        <strong>PDF Page:</strong> ${clauseObj.PageReference}<br>
-        <strong>Timestamp:</strong> ${clauseObj.Timestamp}<br>
-
-        ${clauseObj.LeaseID ? 
-            `<button id="openLease" class="primary">Open LeaseLibrary Entry</button>` 
-            : ""}
+        <strong>Category:</strong> ${clause.Category}<br>
+        <strong>Tags:</strong> ${clause.Tags}<br>
+        <strong>PDF Page:</strong> ${clause.PageReference}<br>
     `;
-
-    // Add handler if button exists
-    const btn = document.getElementById("openLease");
-    if (btn) {
-        btn.onclick = () => openLeaseLibraryLink(clauseObj.LeaseID);
-    }
 }
 
-/* -----------------------------------------------------------
-   ✅ HISTORY PANEL — Show match results
-------------------------------------------------------------*/
+// ------------------------------------------------------------
+// MATCH RESULTS PANEL
+// ------------------------------------------------------------
 function renderMatchResults(matches) {
     const div = document.getElementById("historyContent");
 
@@ -160,3 +211,19 @@ function renderMatchResults(matches) {
             <div class="match-item">
                 <strong>Match #${i + 1}</strong><br>
                 ClauseID: ${m.ClauseID}<br>
+                Category: ${m.Category}<br>
+                <pre>${m.Text}</pre>
+                <button class="useClauseBtn" data-id="${m.ClauseID}">
+                    ✅ Use This Clause
+                </button>
+                <hr>
+            </div>
+        `;
+    });
+
+    div.innerHTML = html;
+
+    document.querySelectorAll(".useClauseBtn").forEach(btn => {
+        btn.onclick = () => applyMatchedClause(btn.dataset.id);
+    });
+}
