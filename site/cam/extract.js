@@ -1,4 +1,5 @@
-import { getSelectedText } from "../lib/excel.js";
+import { getSelectedText }
+    from "https://zealous-pond-05d3aaf10.1.azurestaticapps.net/lib/excel.js";
 
 /**
  * Extract raw clause text.
