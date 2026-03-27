@@ -1,91 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Dollinger CAM Tools</title>
+
+    <!-- Office.js (required by Excel add-ins) -->
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+
+    <!-- Local stylesheet -->
+    <link rel="stylesheet" href="taskpane.css" />
+</head>
+
+<body>
 <div id="camWorkspace">
 
-  <!-- CLAUSE INPUT -->
-  <section class="panel">
-    <h2>Clause Verbiage</h2>
-    <p class="help-text">Copy/paste the exact lease language you are abstracting.</p>
-    <textarea id="clauseText" class="big-text" placeholder="Paste clause text here..."></textarea>
-  </section>
+    <!-- CLAUSE VERBIAGE -->
+    <section class="panel">
+        <h2>Clause Verbiage</h2>
+        <p class="help-text">Paste the exact lease clause you’re abstracting.</p>
+        <textarea id="clauseText" class="big-text" placeholder="Paste clause text here..."></textarea>
+    </section>
 
-  <!-- NOTES & VALUES -->
-  <section class="panel">
-    <h2>Abstraction Notes</h2>
-    <p class="help-text">Write your interpretation, conditions, exceptions, or cross-references.</p>
-    <textarea id="abstractionNotes" class="medium-text" placeholder="Your notes..."></textarea>
+    <!-- NOTES & VALUES -->
+    <section class="panel">
+        <h2>Abstraction Notes</h2>
+        <p class="help-text">Interpretation, exceptions, cross‑references.</p>
+        <textarea id="abstractionNotes" class="medium-text" placeholder="Your notes..."></textarea>
 
-    <h3 class="subheader">Extracted Values</h3>
+        <h3 class="subheader">Extracted Values</h3>
 
-    <div class="field">
-      <label>Dollar Amount(s)</label>
-      <input id="valueDollars" type="text" placeholder="e.g., $2.50/sf, $0.25/sf cap" />
-    </div>
+        <div class="field">
+            <label>Dollar Amount(s)</label>
+            <input id="valueDollars" type="text" placeholder="e.g., $2.50/sf" />
+        </div>
 
-    <div class="field">
-      <label>Percent / Fee</label>
-      <input id="valuePercent" type="text" placeholder="e.g., 5% admin fee" />
-    </div>
+        <div class="field">
+            <label>Percent / Fee</label>
+            <input id="valuePercent" type="text" placeholder="e.g., 5% admin fee" />
+        </div>
 
-    <div class="field">
-      <label>Base Year</label>
-      <input id="valueBaseYear" type="text" placeholder="e.g., 2025" />
-    </div>
+        <div class="field">
+            <label>Base Year</label>
+            <input id="valueBaseYear" type="text" placeholder="e.g., 2025" />
+        </div>
 
-    <div class="field">
-      <label>Date Range / Time Period</label>
-      <input id="valueDates" type="text" placeholder="e.g., 1/1/2025 - 12/31/2025" />
-    </div>
+        <div class="field">
+            <label>Date Range / Period</label>
+            <input id="valueDates" type="text" placeholder="e.g., 1/1/25 – 12/31/25" />
+        </div>
 
-    <div class="field">
-      <label>Other Key Values</label>
-      <input id="valueOther" type="text" placeholder="caps, thresholds, conditions..." />
-    </div>
-  </section>
+        <div class="field">
+            <label>Other Key Values</label>
+            <input id="valueOther" type="text" placeholder="caps, conditions, thresholds..." />
+        </div>
+    </section>
 
-  <!-- CLASSIFICATION & REPOSITORY -->
-  <section class="panel">
-    <h2>Classification & Repository</h2>
+    <!-- CLASSIFICATION & REPOSITORY -->
+    <section class="panel">
+        <h2>Classification &amp; Repository</h2>
 
-    <div class="field">
-      <label>CAM Category</label>
-      <select id="camCategory">
-        <option value="">Select Category</option>
-        <option>Operating Expenses</option>
-        <option>Taxes</option>
-        <option>Insurance</option>
-        <option>Utilities</option>
-        <option>Capital Expenditures</option>
-        <option>Admin/Management Fees</option>
-        <option>Exclusions</option>
-      </select>
-    </div>
+        <div class="field">
+            <label>CAM Category</label>
+            <select id="camCategory">
+                <option value="">Select Category</option>
+                <option>Operating Expenses</option>
+                <option>Taxes</option>
+                <option>Insurance</option>
+                <option>Utilities</option>
+                <option>Capital Expenditures</option>
+                <option>Admin/Management Fees</option>
+                <option>Exclusions</option>
+            </select>
+        </div>
 
-    <div class="field">
-      <label>Tags (comma-separated)</label>
-      <input id="camTags" type="text" placeholder="reimbursable, cap, pass-through" />
-    </div>
+        <div class="field">
+            <label>Tags (comma‑separated)</label>
+            <input id="camTags" type="text" placeholder="reimbursable, cap..." />
+        </div>
 
-    <div class="field">
-      <label>Lease PDF Page Reference</label>
-      <input id="pdfPage" type="text" placeholder="e.g., Page 14 or 14/72" />
-    </div>
+        <div class="field">
+            <label>Lease PDF Page</label>
+            <input id="pdfPage" type="text" placeholder="e.g., Page 14" />
+        </div>
 
-    <div class="action-group">
-      <button id="btnSaveClause" class="primary">Save Clause to Repository</button>
-      <button id="btnMatchClause">Check for Existing Clauses</button>
-    </div>
-  </section>
+        <div class="action-group">
+            <button id="btnSaveClause" class="primary">Save Clause</button>
+            <button id="btnMatchClause">Find Matching Clauses</button>
+        </div>
+    </section>
 
-  <!-- TENANTFORM & HISTORY -->
-  <section class="panel">
-    <h2>TenantForm & History</h2>
+    <!-- TENANTFORM + HISTORY -->
+    <section class="panel">
+        <h2>TenantForm &amp; History</h2>
 
-    <button id="btnInsertID" class="primary">Insert ClauseID into TenantForm</button>
+        <button id="btnInsertID" class="primary">Insert ClauseID into TenantForm</button>
 
-    <h3 class="subheader">Clause History</h3>
-    <div id="historyContent" class="history-box">
-      <p>No clause loaded yet.</p>
-    </div>
-  </section>
+        <h3 class="subheader">Clause History</h3>
+        <div id="historyContent" class="history-box">
+            <p>No clause loaded yet.</p>
+        </div>
+    </section>
 
 </div>
-<script type="module" src="https://zealous-pond-05d3aaf10.1.azurestaticapps.net/taskpane.js"></script>
+
+<!-- Local main script (ES module) -->
+<script type="module" src="taskpane.js"></script>
+
+</body>
+</html>
