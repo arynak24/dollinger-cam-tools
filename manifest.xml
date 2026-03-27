@@ -5,7 +5,6 @@
            xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides/1.0"
            xsi:type="TaskPaneApp">
 
-  <!-- App identity -->
   <Id>c3f8b550-7fa3-4e45-9c2e-dollinger-camtools</Id>
   <Version>1.0.0.0</Version>
   <ProviderName>Dollinger Properties</ProviderName>
@@ -20,9 +19,9 @@
 
   <Permissions>ReadWriteDocument</Permissions>
 
+  <!-- Desktop Excel uses this only, but Excel Online still validates -->
   <DefaultSettings>
-    <!-- This is overridden by VersionOverrides -->
-    <SourceLocation DefaultValue="site/taskpane.html"/>
+    <SourceLocation DefaultValue="~remoteAppUrl/site/taskpane.html"/>
   </DefaultSettings>
 
   <VersionOverrides xsi:type="VersionOverridesV1_0">
@@ -40,14 +39,6 @@
                     <Title resid="CAM.Label"/>
                     <Description resid="CAM.Description"/>
                   </Supertip>
-
-                  <!-- Icons optional; Excel will use a default if not provided -->
-                  <Icon>
-                    <bt:Image size="16" resid="CAM.DefaultIcon"/>
-                    <bt:Image size="32" resid="CAM.DefaultIcon"/>
-                    <bt:Image size="80" resid="CAM.DefaultIcon"/>
-                  </Icon>
-
                   <Action xsi:type="ShowTaskpane">
                     <SourceLocation resid="CAM.TaskpaneUrl"/>
                   </Action>
@@ -63,15 +54,9 @@
 
     <Resources>
 
-      <bt:Images>
-        <!-- Placeholder blank icon encoded directly -->
-        <bt:Image id="CAM.DefaultIcon" 
-                  DefaultValue="https://appsforoffice.microsoft.com/lib/beta/images/placeholder.png"/>
-      </bt:Images>
-
       <bt:Urls>
-        <bt:Url id="CAM.TaskpaneUrl" DefaultValue="site/taskpane.html"/>
-        <bt:Url id="Commands.Url"    DefaultValue="site/commands.html"/>
+        <bt:Url id="CAM.TaskpaneUrl" DefaultValue="~remoteAppUrl/site/taskpane.html"/>
+        <bt:Url id="Commands.Url"    DefaultValue="~remoteAppUrl/site/commands.html"/>
       </bt:Urls>
 
       <bt:ShortStrings>
