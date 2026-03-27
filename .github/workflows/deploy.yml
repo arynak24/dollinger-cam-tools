@@ -25,4 +25,3 @@ jobs:
           app_location: "site"
           api_location: ""
           output_location: ""
-          configuration_file: "site/staticwebapp.config.json"
