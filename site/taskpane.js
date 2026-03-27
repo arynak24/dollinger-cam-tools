@@ -3,9 +3,15 @@
 // ------------------------------------------------------------
 
 // Imports
-import { buildClauseObject } from "./cam/pipeline.js";
-import { insertClauseIDIntoForm } from "./cam/link.js";
-import { spCreate, spGet, spGetByID } from "./lib/sharepoint.js";
+import { spCreate, spGet, spGetByID }
+    from "https://zealous-pond-05d3aaf10.1.azurestaticapps.net/lib/sharepoint.js";
+
+import { buildClauseObject } 
+    from "https://zealous-pond-05d3aaf10.1.azurestaticapps.net/cam/pipeline.js";
+
+import { insertClauseIDIntoForm } 
+    from "https://zealous-pond-05d3aaf10.1.azurestaticapps.net/cam/link.js";
+``
 
 // -----------------------
 // SharePoint Settings
