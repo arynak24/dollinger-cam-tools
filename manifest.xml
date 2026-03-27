@@ -5,53 +5,51 @@
            xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides/1.0"
            xsi:type="TaskPaneApp">
 
-  <!-- Basic metadata -->
-  <Id>56df8e77-0c77-4e75-b245-cam-tools-dollinger</Id>
+  <!-- App identity -->
+  <Id>c3f8b550-7fa3-4e45-9c2e-dollinger-camtools</Id>
   <Version>1.0.0.0</Version>
   <ProviderName>Dollinger Properties</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
-  <DisplayName DefaultValue="CAM Tools" />
-  <Description DefaultValue="CAM clause abstraction workspace." />
 
-  <!-- Host application -->
+  <DisplayName DefaultValue="CAM Tools"/>
+  <Description DefaultValue="CAM Clause Abstraction Workspace"/>
+
   <Hosts>
-    <Host Name="Workbook" />
+    <Host Name="Workbook"/>
   </Hosts>
 
-  <!-- Permissions -->
   <Permissions>ReadWriteDocument</Permissions>
 
-  <!-- Taskpane location -->
   <DefaultSettings>
-    <SourceLocation DefaultValue="https://localhost/site/taskpane.html" />
-    <!-- NOTE: SourceLocation is REPLACED by VersionOverrides below for Excel Online -->
+    <!-- This is overridden by VersionOverrides -->
+    <SourceLocation DefaultValue="site/taskpane.html"/>
   </DefaultSettings>
 
-  <!-- Modern manifest structure -->
   <VersionOverrides xsi:type="VersionOverridesV1_0">
-
     <Hosts>
       <Host xsi:type="Workbook">
-
         <DesktopFormFactor>
 
-          <!-- Ribbon command definitions -->
           <ExtensionPoint xsi:type="PrimaryCommandSurface">
             <OfficeTab id="TabHome">
 
               <Group id="CAM.Group" label="CAM Tools">
                 <Control xsi:type="Button" id="CAM.OpenTaskpane">
-                  <Label resid="CAM.Label" />
+                  <Label resid="CAM.Label"/>
                   <Supertip>
-                    <Title resid="CAM.Label" />
-                    <Description resid="CAM.Description" />
+                    <Title resid="CAM.Label"/>
+                    <Description resid="CAM.Description"/>
                   </Supertip>
+
+                  <!-- Icons optional; Excel will use a default if not provided -->
                   <Icon>
-                    <bt:Image size="16" resid="CAM.Icon16" />
-                    <bt:Image size="32" resid="CAM.Icon32" />
+                    <bt:Image size="16" resid="CAM.DefaultIcon"/>
+                    <bt:Image size="32" resid="CAM.DefaultIcon"/>
+                    <bt:Image size="80" resid="CAM.DefaultIcon"/>
                   </Icon>
+
                   <Action xsi:type="ShowTaskpane">
-                    <SourceLocation resid="CAM.TaskpaneUrl" />
+                    <SourceLocation resid="CAM.TaskpaneUrl"/>
                   </Action>
                 </Control>
               </Group>
@@ -60,29 +58,28 @@
           </ExtensionPoint>
 
         </DesktopFormFactor>
-
       </Host>
     </Hosts>
 
-    <!-- All resources available to the add-in -->
     <Resources>
 
       <bt:Images>
-        <bt:Image id="CAM.Icon16" DefaultValue="https://localhost/site/logo-32.png"/>
-        <bt:Image id="CAM.Icon32" DefaultValue="https://localhost/site/logo-80.png"/>
+        <!-- Placeholder blank icon encoded directly -->
+        <bt:Image id="CAM.DefaultIcon" 
+                  DefaultValue="https://appsforoffice.microsoft.com/lib/beta/images/placeholder.png"/>
       </bt:Images>
 
       <bt:Urls>
-        <bt:Url id="CAM.TaskpaneUrl" DefaultValue="site/taskpane.html" />
-        <bt:Url id="Commands.Url"    DefaultValue="site/commands.html" />
+        <bt:Url id="CAM.TaskpaneUrl" DefaultValue="site/taskpane.html"/>
+        <bt:Url id="Commands.Url"    DefaultValue="site/commands.html"/>
       </bt:Urls>
 
       <bt:ShortStrings>
-        <bt:String id="CAM.Label" DefaultValue="CAM Tools" />
+        <bt:String id="CAM.Label" DefaultValue="CAM Tools"/>
       </bt:ShortStrings>
 
       <bt:LongStrings>
-        <bt:String id="CAM.Description" DefaultValue="Open the CAM abstraction workspace." />
+        <bt:String id="CAM.Description" DefaultValue="Open the CAM Clause Workspace."/>
       </bt:LongStrings>
 
     </Resources>
