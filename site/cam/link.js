@@ -1,4 +1,5 @@
-import { writeToSelectedCell } from "../lib/excel.js";
+import { writeToSelectedCell }
+    from "https://zealous-pond-05d3aaf10.1.azurestaticapps.net/lib/excel.js";
 
 /**
  * Inserts ClauseID into the selected row of TenantForm.
