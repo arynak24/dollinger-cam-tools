@@ -1,4 +1,7 @@
 {
+  "globalHeaders": {
+    "content-security-policy": "default-src 'self'; frame-ancestors https://*.office.com https://*.officeapps.live.com https://*.sharepoint.com 'self';"
+  },
   "navigationFallback": {
     "rewrite": "/index.html"
   }
