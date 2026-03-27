@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+           xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides/1.0"
+           xsi:type="TaskPaneApp">
+
+  <!-- Basic metadata -->
+  <Id>56df8e77-0c77-4e75-b245-cam-tools-dollinger</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>Dollinger Properties</ProviderName>
+  <DefaultLocale>en-US</DefaultLocale>
+  <DisplayName DefaultValue="CAM Tools" />
+  <Description DefaultValue="CAM clause abstraction workspace." />
+
+  <!-- Host application -->
+  <Hosts>
+    <Host Name="Workbook" />
+  </Hosts>
+
+  <!-- Permissions -->
+  <Permissions>ReadWriteDocument</Permissions>
+
+  <!-- Taskpane location -->
+  <DefaultSettings>
+    <SourceLocation DefaultValue="https://localhost/site/taskpane.html" />
+    <!-- NOTE: SourceLocation is REPLACED by VersionOverrides below for Excel Online -->
+  </DefaultSettings>
+
+  <!-- Modern manifest structure -->
+  <VersionOverrides xsi:type="VersionOverridesV1_0">
+
+    <Hosts>
+      <Host xsi:type="Workbook">
+
+        <DesktopFormFactor>
+
+          <!-- Ribbon command definitions -->
+          <ExtensionPoint xsi:type="PrimaryCommandSurface">
+            <OfficeTab id="TabHome">
+
+              <Group id="CAM.Group" label="CAM Tools">
+                <Control xsi:type="Button" id="CAM.OpenTaskpane">
+                  <Label resid="CAM.Label" />
+                  <Supertip>
+                    <Title resid="CAM.Label" />
+                    <Description resid="CAM.Description" />
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="CAM.Icon16" />
+                    <bt:Image size="32" resid="CAM.Icon32" />
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="CAM.TaskpaneUrl" />
+                  </Action>
+                </Control>
+              </Group>
+
+            </OfficeTab>
+          </ExtensionPoint>
+
+        </DesktopFormFactor>
+
+      </Host>
+    </Hosts>
+
+    <!-- All resources available to the add-in -->
+    <Resources>
+
+      <bt:Images>
+        <bt:Image id="CAM.Icon16" DefaultValue="https://localhost/site/logo-32.png"/>
+        <bt:Image id="CAM.Icon32" DefaultValue="https://localhost/site/logo-80.png"/>
+      </bt:Images>
+
+      <bt:Urls>
+        <bt:Url id="CAM.TaskpaneUrl" DefaultValue="site/taskpane.html" />
+        <bt:Url id="Commands.Url"    DefaultValue="site/commands.html" />
+      </bt:Urls>
+
+      <bt:ShortStrings>
+        <bt:String id="CAM.Label" DefaultValue="CAM Tools" />
+      </bt:ShortStrings>
+
+      <bt:LongStrings>
+        <bt:String id="CAM.Description" DefaultValue="Open the CAM abstraction workspace." />
+      </bt:LongStrings>
+
+    </Resources>
+
+  </VersionOverrides>
+
+</OfficeApp>
