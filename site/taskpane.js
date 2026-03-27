@@ -4,7 +4,7 @@
 
 // Imports
 import { spCreate, spGet, spGetByID }
-    from "https://zealous-pond-05d3aaf10.1.azurestaticapps.net/lib/sharepoint.js";
+    from "https://zealous-pond-05d3aaf10.1.azurestaticapps.net/sharepoint.js";
 
 import { buildClauseObject } 
     from "https://zealous-pond-05d3aaf10.1.azurestaticapps.net/cam/pipeline.js";
