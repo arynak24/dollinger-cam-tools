@@ -1,6 +1,11 @@
-import { extractClause } from "./extract.js";
-import { normalizeClause } from "./normalize.js";
-import { suggestCategory } from "./classify.js";
+import { extractClause }
+    from "https://zealous-pond-05d3aaf10.1.azurestaticapps.net/cam/extract.js";
+
+import { normalizeClause } 
+    from "https://zealous-pond-05d3aaf10.1.azurestaticapps.net/cam/normalize.js";
+
+import { suggestCategory } 
+    from "https://zealous-pond-05d3aaf10.1.azurestaticapps.net/cam/classify.js";
 
 /**
  * Build final ClauseObject used across:
